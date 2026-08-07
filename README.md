@@ -95,7 +95,7 @@ Inspection Data Logging
 
 | Category | Technologies |
 |----------|--------------|
-| Programming | Python, Arduino |
+| Programming | Python, VSCode|
 | Computer Vision | OpenCV, YOLOv11 |
 | GUI | PySide6 |
 | Dataset | Roboflow |
@@ -107,7 +107,7 @@ Inspection Data Logging
 
 | Component | Purpose |
 |-----------|---------|
-| USB Camera | Image acquisition |
+| PCCamera | Image acquisition |
 | ESP32 | Industrial controller |
 | IR Sensors | Product detection |
 | Servo Motor | Reject mechanism |
