@@ -147,9 +147,6 @@ VisionGuard/
 │   ├── detection.png
 │   └── simulation.png
 │
-├── demo/
-│   └── demo.mp4
-│
 ├── requirements.txt
 ├── README.md
 └── LICENSE
