@@ -34,7 +34,7 @@ VisionGuard is a vision-based industrial quality inspection system developed to 
                            │
                            ▼
 
-              Camera Module (USB/IP Camera)
+                      PC Camera 
                            │
                            ▼
 
@@ -107,7 +107,7 @@ Inspection Data Logging
 
 | Component | Purpose |
 |-----------|---------|
-| PCCamera | Image acquisition |
+| PC Camera | Image acquisition |
 | ESP32 | Industrial controller |
 | IR Sensors | Product detection |
 | Servo Motor | Reject mechanism |
