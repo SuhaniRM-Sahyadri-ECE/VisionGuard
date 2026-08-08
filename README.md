@@ -71,13 +71,13 @@ The system captures optical frames via a webcam using **OpenCV and Roboflow Clou
 
 ## 📁 File Responsibilities Matrix
 
-| File Name               | Execution Context | Core Function                                                                                                                                |
-| ----------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`cloud_vision_engine.py`**    | Python 3.x        | Captures webcam feed, runs OpenCV geometry analysis + Roboflow AI, updates frame buffer, and feeds visual data to dashboard & PLC simulator. |
-| **`esp32_main.ino`**    | ESP32 Firmware    | Reads physical entry/hole IR sensors, actuates the rejection servo motor, controls Green/Red LEDs, and outputs JSON metrics over Serial.     |
-| **`serial_inspection.py`** | Python 3.x        | Listens on USB Serial port (`COM3` / `/dev/ttyUSB0`), processes ESP32 telemetry, and syncs updates to `live_inspection_data.json`.           |
-| **`plc_simulator.py`**  | Python 3.x        | Simulates industrial PLC ladder logic scan cycles using combined inputs from both the vision script and the ESP32 hardware stream.           |
-| **`dashboard_2.py`**      | Streamlit         | Industrial Command Center UI. Renders high-speed non-flashing video stream, KPI metric cards, line status alerts, and Plotly analytics.      |
+| File Name               | Core Function                                                                                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`cloud_vision_engine.py`**    | Captures webcam feed, runs OpenCV geometry analysis + Roboflow AI, updates frame buffer and feeds visual data to dashboard & PLC simulator. |
+| **`esp32_main.ino`**    | Reads physical entry/hole IR sensors, actuates the rejection servo motor, controls RGB LED indicators and outputs JSON metrics over Serial. |
+| **`serial_inspection.py`** | Listens on USB Serial port, processes ESP32 telemetry, and syncs updates to `live_inspection_data.json`.                                     |
+| **`plc_simulator.py`**  | Simulates industrial PLC ladder logic scan cycles using combined inputs from the vision script and the ESP32 hardware stream.                |
+| **`dashboard_2.py`**      | Industrial Command Center UI. Renders live video, KPI metric cards, line status alerts and production analytics.                            |
 
 ---
 
