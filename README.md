@@ -1,244 +1,141 @@
-# VisionGuard
+# Dual-Stream Industrial Vision & ESP32 PLC Gateway
 
-### *Vision-Based Industrial Quality Inspection System*
+An end-to-end industrial quality control system featuring a **parallel dual-stream processing architecture**.
 
-> A vision-based industrial quality inspection system that performs real-time object detection, defect inspection, PASS/FAIL classification, and production monitoring using YOLOv11, OpenCV, and an interactive dashboard.
-
----
-
-## Overview
-
-VisionGuard is a vision-based industrial quality inspection system developed to automate defect detection in manufacturing environments. The system captures images from a camera, processes them using OpenCV, and performs object detection with YOLOv11. Detected products are inspected for defects and classified as PASS or FAIL. Inspection results are displayed on a live dashboard with production statistics and PLC simulation, demonstrating an Industry 4.0 quality control workflow.
+The system captures optical frames via a webcam using **OpenCV and Roboflow Cloud AI**, while simultaneously processing physical line inputs using an **ESP32 microcontroller** (IR sensors, LED indicators, rejection servo motor). Both parallel streams feed real-time telemetry directly into a **Streamlit SCADA Command Center** and a **PLC Simulator**.
 
 ---
 
-## Features
-
-- Real-time object detection
-- Automatic defect inspection
-- PASS / FAIL quality classification
-- Live production dashboard
-- PLC simulation
-- Inspection data logging
-
----
-
-## System Architecture
-
-> Replace this section with your architecture diagram.
+## 🛠 Parallel System Architecture
 
 ```text
-                     VISIONGUARD
-
-                     PRODUCTION LINE
-                           │
-                           ▼
-
-                      PC Camera 
-                           │
-                           ▼
-
-                     OpenCV Processing
-                           │
-                           ▼
-
-                  YOLOv11 Object Detection
-                           │
-            ┌──────────────┴──────────────┐
-            ▼                             ▼
-
-   Object Classification          Defect Inspection
-
-            └──────────────┬──────────────┘
-                           ▼
-
-                 PASS / FAIL Decision
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-
-     Dashboard      PLC Simulation    Data Logging
+                               ┌─────────────────────────┐
+                               │    OBJECT DETECTION     │
+                               │ (Physical Product Line) │
+                               └────────────┬────────────┘
+                                            │
+                   ┌────────────────────────┴────────────────────────┐
+                   │                                                 │
+                   ▼                                                 ▼
+      [ PARALLEL STREAM 1: VISION ]                    [ PARALLEL STREAM 2: ESP32 ]
+                   │                                                 │
+                   ▼                                                 ▼
+      ┌──────────────────────────┐                      ┌──────────────────────────┐
+      │ Webcam Detects Object    │                      │ IR Sensors & Hardware    │
+      └────────────┬─────────────┘                      └────────────┬─────────────┘
+                   │                                                 │
+                   ▼                                                 ▼
+      ┌──────────────────────────┐                      ┌──────────────────────────┐
+      │ OpenCV / Roboflow AI     │                      │ ESP32 Hardware Unit      │
+      │ Processes Products       │                      │ Actuates Servo & LEDs    │
+      └────────────┬─────────────┘                      └────────────┬─────────────┘
+                   │                                                 │
+                   │                                                 ▼
+                   │                                    ┌──────────────────────────┐
+                   │                                    │ Serial Monitor           │
+                   │                                    │ (serial_monitor.py)      │
+                   │                                    └────────────┬─────────────┘
+                   │                                                 │
+                   ├─────────────────────────────────────────────────┤
+                   │                                                 │
+                   ▼                                                 ▼
+      ┌──────────────────────────┐                      ┌──────────────────────────┐
+      │      PLC SIMULATOR       │                      │   STREAMLIT DASHBOARD    │
+      │  (Monitors Vision &      │                      │ (Consolidates Vision &   │
+      │   ESP32 Telemetry)       │                      │   Hardware Telemetry)    │
+      └──────────────────────────┘                      └──────────────────────────┘
 ```
 
 ---
 
-## Workflow
+## How the Parallel Flow Operates
 
-```text
-Production Line
-      │
-      ▼
-Camera Capture
-      │
-      ▼
-OpenCV Processing
-      │
-      ▼
-YOLOv11 Detection
-      │
-      ▼
-Defect Inspection
-      │
-      ▼
-PASS / FAIL Decision
-      │
-      ▼
-Dashboard & PLC Simulation
-      │
-      ▼
-Inspection Data Logging
-```
+1. **Stream 1: Vision Pipeline **
+
+   * Webcam detects physical items entering the optical field.
+   * OpenCV performs real-time contour geometry filtering to detect holes while Roboflow AI runs asynchronous cloud defect classification.
+   * Frame buffers (`latest_frame.jpg`) and vision metrics are pushed directly to the **Streamlit Dashboard** and **PLC Simulator**.
+
+2. **Stream 2: Hardware Pipeline **
+
+   * Simultaneously, physical IR sensors on the ESP32 detect item presence and hole alignment.
+   * The ESP32 triggers physical Pass/Fail LEDs and actuates a Servo Motor for hardware rejection.
+   * `serial_monitor.py` captures raw JSON strings over Serial USB and routes hardware telemetry into the system data sink (`live_inspection_data.json`).
+
+3. **Convergence **
+
+   * **Streamlit Dashboard (`dashboard.py`):** Consolidates live video frames with ESP32 hardware counts and line status in real time.
+   * **PLC Simulator (`plc_simulator.py`):** Operates alongside the pipeline, tracking logic execution states and timer delays across both vision and hardware signals.
 
 ---
 
-## Technologies Used
+## 📁 File Responsibilities Matrix
 
-| Category | Technologies |
-|----------|--------------|
-| Programming | Python, VSCode|
-| Computer Vision | OpenCV, YOLOv11 |
-| GUI | PySide6 |
-| Dataset | Roboflow |
-| Hardware | ESP32, Servo Motor, IR Sensors, LEDs, Buzzer |
-
----
-
-## Hardware Components
-
-| Component | Purpose |
-|-----------|---------|
-| PC Camera | Image acquisition |
-| ESP32 | Industrial controller |
-| IR Sensors | Product detection |
-| Servo Motor | Reject mechanism |
-| LEDs | Status indication |
-| Buzzer | Defect alert |
+| File Name               | Execution Context | Core Function                                                                                                                                |
+| ----------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`cloud_vision_engine.py`**    | Python 3.x        | Captures webcam feed, runs OpenCV geometry analysis + Roboflow AI, updates frame buffer, and feeds visual data to dashboard & PLC simulator. |
+| **`esp32_main.ino`**    | ESP32 Firmware    | Reads physical entry/hole IR sensors, actuates the rejection servo motor, controls Green/Red LEDs, and outputs JSON metrics over Serial.     |
+| **`serial_inspection.py`** | Python 3.x        | Listens on USB Serial port (`COM3` / `/dev/ttyUSB0`), processes ESP32 telemetry, and syncs updates to `live_inspection_data.json`.           |
+| **`plc_simulator.py`**  | Python 3.x        | Simulates industrial PLC ladder logic scan cycles using combined inputs from both the vision script and the ESP32 hardware stream.           |
+| **`dashboard_2.py`**      | Streamlit         | Industrial Command Center UI. Renders high-speed non-flashing video stream, KPI metric cards, line status alerts, and Plotly analytics.      |
 
 ---
 
-## Project Structure
+## 🔌 Hardware Wiring Diagram
 
-```text
-VisionGuard/
+### ESP32 Pin Mapping
 
-├── app/
-│   ├── main.py
-│   ├── detector.py
-│   ├── camera.py
-│   └── utils.py
-│
-├── dashboard/
-│   ├── dashboard.py
-│   ├── simulation.py
-│   └── analytics.py
-│
-├── hardware/
-│   ├── esp32_code.ino
-│   ├── wiring.png
-│   └── circuit_diagram.png
-│
-├── model/
-│   ├── best.pt
-│   └── classes.txt
-│
-├── screenshots/
-│   ├── architecture.png
-│   ├── dashboard.png
-│   ├── detection.png
-│   └── simulation.png
-│
-├── requirements.txt
-├── README.md
-└── LICENSE
-```
+| Component               | ESP32 Pin | Mode / Configuration           | Function                                           |
+| ----------------------- | --------- | ------------------------------ | -------------------------------------------------- |
+| **IR Sensor 1 (Entry)** | `GPIO 13` | Digital Input (`INPUT_PULLUP`) | Detects when an item enters the inspection zone.   |
+| **IR Sensor 2 (Hole)**  | `GPIO 12` | Digital Input (`INPUT_PULLUP`) | Aligned to inspect for physical holes/slots.       |
+| **Servo Motor Signal**  | `GPIO 14` | PWM Output                     | Actuates rejection gate (0° = Pass, 90° = Reject). |
+| **Green LED**           | `GPIO 27` | Digital Output                 | Line PASS indicator.                               |
+| **Red LED**             | `GPIO 26` | Digital Output                 | Line DEFECT / FAULT alert.                         |
 
 ---
 
-## Installation
+## 🚀 Installation & Execution Guide
 
-Clone the repository
+### 1. Requirements & Dependencies
+
+Install required Python packages:
 
 ```bash
-git clone https://github.com/your-username/VisionGuard.git
+pip install opencv-python requests numpy pandas plotly streamlit pyserial
 ```
 
-Navigate to the project directory
+### 2. Flashing ESP32 Firmware
+
+1. Open `esp32_main.ino` in Arduino IDE.
+2. Install the **ESP32Servo** library (`Tools` → `Manage Libraries...`).
+3. Select your ESP32 board, select the COM port, and click **Upload**.
+
+### 3. Running the Parallel Ecosystem
+
+Launch each module in a separate terminal window inside the project directory:
+
+**Terminal 1 — Vision Stream**
 
 ```bash
-cd VisionGuard
+python cloud_vision_engine.py
 ```
 
-Install the required dependencies
+**Terminal 2 — ESP32 Serial Bridge**
 
 ```bash
-pip install -r requirements.txt
+python serial_inspection.py
 ```
 
-Run the application
+**Terminal 3 — PLC Simulator**
 
 ```bash
-python main.py
+python plc_simulator.py
 ```
 
----
+**Terminal 4 — Streamlit Command Dashboard**
 
-## Screenshots
+```bash
+streamlit run dashboard.py
+```
 
-### System Architecture
-
-> Add `architecture.png`
-
-### Dashboard
-
-> Add `dashboard.png`
-
-### Detection Results
-
-> Add `detection.png`
-
-### PLC Simulation
-
-> Add `simulation.png`
-
----
-
-## Results
-
-- Detects industrial objects in real time.
-- Identifies defective products using YOLOv11.
-- Performs automated PASS / FAIL classification.
-- Displays live production statistics through the dashboard.
-- Demonstrates an industrial quality inspection workflow with PLC simulation.
-
----
-
-## Applications
-
-- Packaging Industries
-- Food & Beverage Manufacturing
-- Smart Manufacturing
-- Industry 4.0 Automation
-- Automated Quality Inspection
-
----
-
-## Future Enhancements
-
-- PLC integration
-- Multi-camera inspection
-- Cloud analytics dashboard
-- Automated report generation
-
----
-
-## Author
-
-**Suhani RM**
-
-Electronics and Communication Engineering
-
----
-
-## License
-
-This project is licensed under the MIT License.
