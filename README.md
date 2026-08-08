@@ -87,11 +87,12 @@ The system captures optical frames via a webcam using **OpenCV and Roboflow Clou
 
 | Component               | ESP32 Pin | Mode / Configuration           | Function                                           |
 | ----------------------- | --------- | ------------------------------ | -------------------------------------------------- |
-| **IR Sensor 1 (Entry)** | `GPIO 13` | Digital Input (`INPUT_PULLUP`) | Detects when an item enters the inspection zone.   |
-| **IR Sensor 2 (Hole)**  | `GPIO 12` | Digital Input (`INPUT_PULLUP`) | Aligned to inspect for physical holes/slots.       |
+| **IR Sensor 1 (Entry)** | `GPIO 23` | Digital Input (`INPUT_PULLUP`) | Detects when an item enters the inspection zone.   |
+| **IR Sensor 2 (Hole)**  | `GPIO 22` | Digital Input (`INPUT_PULLUP`) | Aligned to inspect for physical holes/slots.       |
 | **Servo Motor Signal**  | `GPIO 14` | PWM Output                     | Actuates rejection gate (0° = Pass, 90° = Reject). |
-| **Green LED**           | `GPIO 27` | Digital Output                 | Line PASS indicator.                               |
-| **Red LED**             | `GPIO 26` | Digital Output                 | Line DEFECT / FAULT alert.                         |
+| **Green LED**           | `GPIO 26` | Digital Output                 | Line PASS indicator.                               |
+| **Red LED**             | `GPIO 27` | Digital Output                 | Line DEFECT / FAULT alert.                         |
+| **Blue LED**            | `GPIO 25` | Digital Output                 |System ready / inspection active.                   |
 
 ---
 
