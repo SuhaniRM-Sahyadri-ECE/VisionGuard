@@ -54,18 +54,18 @@ The system captures optical frames via a webcam using **OpenCV and Roboflow Clou
 
    * Webcam detects physical items entering the optical field.
    * OpenCV performs real-time contour geometry filtering to detect holes while Roboflow AI runs asynchronous cloud defect classification.
-   * Frame buffers (`latest_frame.jpg`) and vision metrics are pushed directly to the **Streamlit Dashboard** and **PLC Simulator**.
+   * Frame buffers and vision metrics are pushed directly to the **Streamlit Dashboard** and **PLC Simulator**.
 
 2. **Stream 2: Hardware Pipeline **
 
    * Simultaneously, physical IR sensors on the ESP32 detect item presence and hole alignment.
    * The ESP32 triggers physical Pass/Fail LEDs and actuates a Servo Motor for hardware rejection.
-   * `serial_monitor.py` captures raw JSON strings over Serial USB and routes hardware telemetry into the system data sink (`live_inspection_data.json`).
+   * Captures raw JSON strings over Serial USB and routes hardware telemetry into the system data sink (`live_inspection_data.json`).
 
 3. **Convergence **
 
-   * **Streamlit Dashboard (`dashboard.py`):** Consolidates live video frames with ESP32 hardware counts and line status in real time.
-   * **PLC Simulator (`plc_simulator.py`):** Operates alongside the pipeline, tracking logic execution states and timer delays across both vision and hardware signals.
+   * **Streamlit Dashboard :** Consolidates live video frames with ESP32 hardware counts and line status in real time.
+   * **PLC Simulator :** Operates alongside the pipeline, tracking logic execution states and timer delays across both vision and hardware signals.
 
 ---
 
@@ -73,7 +73,7 @@ The system captures optical frames via a webcam using **OpenCV and Roboflow Clou
 
 | File Name               | Core Function                                                                                                                                |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`cloud_vision_engine.py`**    | Captures webcam feed, runs OpenCV geometry analysis + Roboflow AI, updates frame buffer and feeds visual data to dashboard & PLC simulator. |
+| **`cloud_vision_engine_4.py`**    | Captures webcam feed, runs OpenCV geometry analysis + Roboflow AI, updates frame buffer and feeds visual data to dashboard & PLC simulator. |
 | **`esp32_main.ino`**    | Reads physical entry/hole IR sensors, actuates the rejection servo motor, controls RGB LED indicators and outputs JSON metrics over Serial. |
 | **`serial_inspection.py`** | Listens on USB Serial port, processes ESP32 telemetry, and syncs updates to `live_inspection_data.json`.                                     |
 | **`plc_simulator.py`**  | Simulates industrial PLC ladder logic scan cycles using combined inputs from the vision script and the ESP32 hardware stream.                |
@@ -119,7 +119,7 @@ Launch each module in a separate terminal window inside the project directory:
 **Terminal 1 — Vision Stream**
 
 ```bash
-python cloud_vision_engine.py
+python cloud_vision_engine_4.py
 ```
 
 **Terminal 2 — ESP32 Serial Bridge**
