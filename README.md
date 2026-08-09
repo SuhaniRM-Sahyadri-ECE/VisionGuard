@@ -93,6 +93,8 @@ The system captures optical frames via a webcam using **OpenCV and Roboflow Clou
 | **Green LED**           | `GPIO 26` | Digital Output                 | Line PASS indicator.                               |
 | **Red LED**             | `GPIO 27` | Digital Output                 | Line DEFECT / FAULT alert.                         |
 | **Blue LED**            | `GPIO 25` | Digital Output                 |System ready / inspection active.                   |
+| **Blue LED**            | `GPIO 25` | Digital Output                 |System ready / inspection active.                   |
+
 
 ---
 
